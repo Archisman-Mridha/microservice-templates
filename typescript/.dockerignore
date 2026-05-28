@@ -1,0 +1,9 @@
+*
+
+!src
+!bun.lock
+!bunfig.toml
+!package.json
+!rspack.config.mjs
+!tsconfig.build.json
+!tsconfig.json

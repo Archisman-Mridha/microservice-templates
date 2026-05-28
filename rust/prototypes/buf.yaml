@@ -1,0 +1,8 @@
+version: v2
+
+modules:
+  - path: apis/auth
+    name: openmedia.io/apis/auth
+
+  - path: apis/profiles
+    name: openmedia.io/apis/profiles

@@ -1,0 +1,133 @@
+import { ApolloServerPlugin } from "@apollo/server"
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default"
+import { KeyvAdapter } from "@apollo/utils.keyvadapter"
+import KeyvRedis, { RedisClusterType } from "@keyv/redis"
+import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo"
+import { Module } from "@nestjs/common"
+import { ConfigModule, ConfigService } from "@nestjs/config"
+import { CqrsModule } from "@nestjs/cqrs"
+import { GraphQLModule, GraphQLSchemaHost } from "@nestjs/graphql"
+import { TypeOrmModule } from "@nestjs/typeorm"
+import Keyv from "keyv"
+import z from "zod"
+import { ConfigSchema } from "../../config/config"
+import { GraphQLQueryComplexityPlugin } from "../../graphql/plugins/query-complexity"
+import { isDevelopmentEnvironment } from "../../utils/utils"
+import { AuthModule } from "../auth/module"
+import { HealthModule } from "../health/module"
+import { PingModule } from "../ping/module"
+import { REDIS_CLUSTER_CLIENT, RedisModule } from "../redis/module"
+import { TelemetryModule } from "../telemetry/module"
+import { UsersModule } from "../users/module"
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+
+      expandVariables: true,
+      cache: true,
+
+      validate: (config) => {
+        const parsedConfig = ConfigSchema.parse(config)
+        return parsedConfig
+      }
+    }),
+
+    RedisModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<z.infer<typeof ConfigSchema>>) => {
+        const rootNodes = configService
+          .getOrThrow<string>("REDIS_CLUSTER_NODES")
+          .split(",")
+          .map((url: string) => ({ url }))
+
+        return {
+          rootNodes,
+
+          defaults: {
+            username: configService.getOrThrow("REDIS_USERNAME"),
+            password: configService.getOrThrow("REDIS_PASSWORD")
+          }
+        }
+      }
+    }),
+
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+
+      inject: [REDIS_CLUSTER_CLIENT, GraphQLSchemaHost],
+      useFactory: (redisClusterClient: RedisClusterType, graphQLSchemaHost: GraphQLSchemaHost) => ({
+        buildSchemaOptions: {
+          // The GraphQLISODateTime (e.g. 2019-12-03T09:54:33Z) is used by default to represent the
+          // Date type. We instead want to use the GraphQLTimestamp type.
+          dateScalarMode: "timestamp"
+        },
+
+        cache: new KeyvAdapter(
+          new Keyv({
+            store: new KeyvRedis(redisClusterClient)
+          }),
+          { disableBatchReads: true }
+        ),
+
+        // To improve network performance for large query strings, Apollo Server supports
+        // Automatic Persisted Queries (APQ). A persisted query is a query string that's cached on
+        // the server side, along with its unique identifier (always its SHA-256 hash). Clients can
+        // send this identifier instead of the corresponding query string, thus reducing request
+        // sizes dramatically (response sizes are unaffected).
+        persistedQueries: {
+          ttl: null
+        },
+
+        autoSchemaFile: true,
+
+        introspection: isDevelopmentEnvironment,
+        playground: false,
+        plugins: getGraphQLServerPlugins(graphQLSchemaHost)
+      })
+    }),
+
+    CqrsModule.forRoot(),
+
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<z.infer<typeof ConfigSchema>>) => ({
+        type: "postgres",
+        url: configService.getOrThrow("POSTGRES_URL"),
+
+        autoLoadEntities: true,
+
+        migrations: ["generated/migrations/**"],
+        migrationsRun: true,
+
+        // Indicates if database schema should be auto created on every application launch.
+        // NOTE : Be careful with this option and don't use this in production - otherwise you can
+        //        loose production data.
+        synchronize: isDevelopmentEnvironment
+
+        // logging: isDevelopmentEnvironment
+      })
+    }),
+
+    PingModule,
+    UsersModule,
+    AuthModule,
+
+    HealthModule,
+    TelemetryModule
+
+    // DevtoolsModule.register({ http: isDevelopmentEnvironment })
+  ]
+})
+export class RootModule {}
+
+// Returns the GraphQL server plugins to be used.
+function getGraphQLServerPlugins(graphQLSchemaHost: GraphQLSchemaHost): ApolloServerPlugin[] {
+  const plugins: ApolloServerPlugin[] = []
+
+  if (isDevelopmentEnvironment) plugins.push(ApolloServerPluginLandingPageLocalDefault())
+  else plugins.concat(new GraphQLQueryComplexityPlugin(graphQLSchemaHost))
+
+  return plugins
+}

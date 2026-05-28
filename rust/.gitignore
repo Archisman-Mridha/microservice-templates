@@ -1,0 +1,6 @@
+/.devenv
+/.direnv
+
+.env
+
+/target

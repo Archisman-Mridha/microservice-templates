@@ -1,0 +1,73 @@
+[package]
+name = "openmedia"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+path = "./src/cmd/main.rs"
+name = "openmedia-backend"
+
+[profile.release]
+# The opt-level setting controls the -C opt-level flag which controls the level of optimization.
+# Higher optimization levels may produce faster runtime code at the expense of longer compiler
+# times. Higher levels may also change and rearrange the compiled code which may make it harder to
+# use with a debugger.
+opt-level = 3
+#
+# LTO allows the compiler to optimize across crate boundaries during linking. Without LTO, each
+# crate gets optimized independently. With LTO enabled, the compiler sees your entire dependency
+# tree and can inline functions from dependencies, eliminate dead code across crates, and make
+# better optimization decisions.
+# Full LTO produces the smallest and fastest binaries but increases compile times significantly.
+lto = true
+#
+# By default, Rust splits each crate into multiple parallel compilation units. This speeds up
+# compilation but prevents some optimizations that work across unit boundaries.
+# Setting this to 1 gives the optimizer full visibility but makes compilation single-threaded for
+# each crate.
+codegen-units = 1
+#
+# Release binaries still contain symbol information useful for debugging. In production, you rarely
+# need this, and removing it reduces binary size substantially.
+strip = true
+
+[dependencies]
+axum = { version = "0.8.9", features = ["http2"], default-features = false }
+anyhow = "1.0.102"
+config = "0.15.23"
+opentelemetry = "0.31.0"
+opentelemetry-appender-tracing = "0.31.0"
+opentelemetry-otlp = { version = "0.31.0", features = ["grpc-tonic"] }
+opentelemetry-semantic-conventions = "0.32.0"
+opentelemetry-stdout = "0.31.0"
+opentelemetry_sdk = "0.31.0"
+prost = "0.14.3"
+sea-orm = { version = "2.0.0-rc.38", features = [
+  "debug-print",
+  "runtime-tokio",
+  "sqlx-postgres",
+  "schema-sync",
+] }
+serde = { version = "1.0.228", features = ["derive"] }
+tonic = { version = "0.14.6", features = ["gzip"] }
+tonic-prost = "0.14.6"
+tonic-reflection = "0.14.6"
+tower = "0.5.3"
+tower-http = { version = "0.6.10", features = ["trace"] }
+tracing = "0.1.44"
+tracing-opentelemetry = "0.32.1"
+tracing-subscriber = { version = "0.3.23", features = [
+  "env-filter",
+  "json",
+  "parking_lot",
+] }
+tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros"] }
+clap = { version = "4.6.1", features = ["derive"] }
+argon2 = "0.5.3"
+jsonwebtoken = { version = "10.4.0", features = ["rust_crypto"] }
+validator = { version = "0.20.0" }
+serde_json = "1.0.150"
+chrono = "0.4.44"
+
+[build-dependencies]
+tonic-prost-build = "0.14.6"

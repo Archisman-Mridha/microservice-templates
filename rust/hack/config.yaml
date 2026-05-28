@@ -1,0 +1,10 @@
+postgresql:
+  url: postgresql://openmedia-backend:Mnkfu3MZjmpLRfca@localhost:5432/openmedia-backend
+
+jwt:
+  encoding_secret: Mnkfu3MZjmpLRfca
+
+telemetry:
+  otlp_collector_url: http://localhost:5080/api/default
+  logger:
+    level: DEBUG

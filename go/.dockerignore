@@ -1,0 +1,7 @@
+*
+
+!cmd
+!internal
+!prototypes/generated
+!go.mod
+!go.sum

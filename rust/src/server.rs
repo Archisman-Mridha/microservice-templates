@@ -21,21 +21,31 @@
 // SOFTWARE.
 
 use {
-  crate::domains::auth::{
-    self,
-    api::{AuthAPI, auth_api_service_server::AuthApiServiceServer}
+  crate::{
+    domains::auth::{
+      self,
+      api::{AuthAPI, auth_api_service_server::AuthApiServiceServer}
+    },
+    healthcheck::Healthcheckable
   },
   axum::http::{HeaderMap, Request},
   opentelemetry::{global::get_text_map_propagator, propagation::Extractor},
-  std::net::SocketAddr,
+  std::{net::SocketAddr, time::Duration},
+  tokio::time::sleep,
   tonic::{body::Body, codec::CompressionEncoding, transport::Server},
+  tonic_health::server::HealthReporter,
   tower::ServiceBuilder,
   tower_http::trace::TraceLayer,
   tracing::{Span, info_span, warn},
   tracing_opentelemetry::OpenTelemetrySpanExt
 };
 
-pub async fn start(address: SocketAddr, auth_api: AuthAPI) -> anyhow::Result<()> {
+pub async fn start(address: SocketAddr,
+                   auth_api: AuthAPI,
+                   healthcheckables: Vec<impl Healthcheckable>)
+                   -> anyhow::Result<()> {
+  let (health_reporter, health_service) = tonic_health::server::health_reporter();
+
   let auth_api_service =
     AuthApiServiceServer::new(auth_api).send_compressed(CompressionEncoding::Gzip)
                                        .accept_compressed(CompressionEncoding::Gzip);
@@ -45,10 +55,14 @@ pub async fn start(address: SocketAddr, auth_api: AuthAPI) -> anyhow::Result<()>
     .build_v1()?;
 
   let trace_propagation_layer =
-    ServiceBuilder::new().layer(TraceLayer::new_for_grpc().make_span_with(make_span));
+    ServiceBuilder::new().layer(TraceLayer::new_for_grpc().make_span_with(make_span))
+                         .map_request(link_parent_trace);
+
+  tokio::spawn(set_health_status(health_reporter, healthcheckables));
 
   let router = Server::builder().layer(trace_propagation_layer)
                                 .add_service(auth_api_service)
+                                .add_service(health_service)
                                 .add_service(reflection_service);
   router.serve(address).await?;
 
@@ -61,10 +75,10 @@ pub fn make_span(request: &Request<Body>) -> Span {
 }
 
 pub fn link_parent_trace(request: Request<Body>) -> Request<Body> {
-  let parent_ctx =
+  let parent_trace_context =
     get_text_map_propagator(|propagator| propagator.extract(&MetadataExtractor(request.headers())));
 
-  if let Err(error) = Span::current().set_parent(parent_ctx) {
+  if let Err(error) = Span::current().set_parent(parent_trace_context) {
     warn!("Failed linking span with parent : {error}")
   }
 
@@ -78,4 +92,30 @@ impl<'metadata_extractor> Extractor for MetadataExtractor<'metadata_extractor> {
   fn keys(&self) -> Vec<&str> { self.0.keys().map(|key| key.as_str()).collect() }
 
   fn get(&self, key: &str) -> Option<&str> { self.0.get(key).and_then(|value| value.to_str().ok()) }
+}
+
+/// Responsible for setting the health status of this gRPC server.
+/// Currently, we keep it simple : we check health of every healthcheckable periodically.
+/// And, if any of them turns out to be unhealthy, we set all the services as not serving.
+async fn set_health_status(health_reporter: HealthReporter,
+                           healthcheckables: Vec<impl Healthcheckable + Send + Sync>) {
+  // Set all the services as serving, initially.
+  health_reporter.set_serving::<AuthApiServiceServer<AuthAPI>>().await;
+
+  loop {
+    sleep(Duration::from_secs(1)).await;
+
+    let mut everything_healthy = true;
+
+    for healthcheckable in &healthcheckables {
+      if healthcheckable.healthcheck().await.is_err() {
+        everything_healthy = false;
+      }
+    }
+
+    match everything_healthy {
+      | true => health_reporter.set_serving::<AuthApiServiceServer<AuthAPI>>().await,
+      | _ => health_reporter.set_not_serving::<AuthApiServiceServer<AuthAPI>>().await
+    }
+  }
 }

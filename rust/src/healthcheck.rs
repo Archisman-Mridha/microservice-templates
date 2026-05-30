@@ -23,7 +23,7 @@
 /// The Healthcheckable trait represents a subject on which we can perform a
 /// healthcheck operation. When that subject is unhealthy, the application is
 /// unhealthy.
-pub trait Healthcheckable {
-  /// The healthcheck operation, which the subject needs to implement.
+#[async_trait::async_trait]
+pub trait Healthcheckable: Send + Sync + 'static {
   async fn healthcheck(&self) -> anyhow::Result<()>;
 }

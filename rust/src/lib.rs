@@ -63,8 +63,11 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
   let auth_api = AuthAPI::new(auth_service);
 
   // Create and run the gRPC server.
+
+  let healthcheckables = vec![postgresql_connector];
+
   let address = config.server.address.parse()?;
-  server::start(address, auth_api).await?;
+  server::start(address, auth_api, healthcheckables).await?;
 
   Ok(())
 }

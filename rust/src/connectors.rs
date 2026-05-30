@@ -43,6 +43,7 @@ impl PostgreSQLConnector {
   pub fn get_connection(&self) -> Arc<DatabaseConnection> { self.connection.clone() }
 }
 
+#[async_trait::async_trait]
 impl Healthcheckable for PostgreSQLConnector {
   async fn healthcheck(&self) -> anyhow::Result<()> {
     self.connection.ping().await?;

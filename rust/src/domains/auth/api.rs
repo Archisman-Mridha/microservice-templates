@@ -23,7 +23,7 @@
 use {
   crate::domains::auth::{
     api::auth_api_service_server::AuthApiService,
-    dtos::{CreateUserArgs, SigninArgs, SigninID, VerifyAccessTokenArgs},
+    dtos::{CreateUserArgs, SigninArgs, SigninID, VerifyJWTArgs},
     error::Error,
     service::AuthService,
     valueobjects::{Email, Name, Password, Username}
@@ -99,22 +99,21 @@ impl AuthApiService for AuthAPI {
                      .await
                      .map_err(into_status)?;
 
-    Ok(Response::new(SigninResponse { user_id:      output.user_id,
-                                      access_token: output.access_token }))
+    Ok(Response::new(SigninResponse { user_id: output.user_id,
+                                      jwt:     output.jwt }))
   }
 
   #[instrument(skip(self))]
-  async fn verify_access_token(&self,
-                               request: Request<VerifyAccessTokenRequest>)
-                               -> Result<Response<VerifyAccessTokenResponse>, Status> {
+  async fn verify_jwt(&self,
+                      request: Request<VerifyJwtRequest>)
+                      -> Result<Response<VerifyJwtResponse>, Status> {
     let request = request.into_inner();
 
     let output = self.service
-                     .verify_access_token(VerifyAccessTokenArgs { access_token:
-                                                                    request.access_token })
+                     .verify_jwt(VerifyJWTArgs { jwt: request.jwt })
                      .await
                      .map_err(<Error as Into<Status>>::into)?;
 
-    Ok(Response::new(VerifyAccessTokenResponse { user_id: output.user_id }))
+    Ok(Response::new(VerifyJwtResponse { user_id: output.user_id }))
   }
 }

@@ -40,14 +40,14 @@ pub struct SigninArgs {
 }
 
 pub struct SigninOutput {
-  pub user_id:      i64,
-  pub access_token: String
+  pub user_id: i64,
+  pub jwt:     String
 }
 
-pub struct VerifyAccessTokenArgs {
-  pub access_token: String
+pub struct VerifyJWTArgs {
+  pub jwt: String
 }
 
-pub struct VerifyAccessTokenOutput {
+pub struct VerifyJWTOutput {
   pub user_id: i64
 }

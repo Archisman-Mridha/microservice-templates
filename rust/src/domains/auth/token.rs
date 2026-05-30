@@ -79,13 +79,13 @@ impl JWTService {
     let token_data = decode::<Claims>(jwt, &self.decoding_key, &validation).map_err(|error| {
                        error!("Failed decoding JWT : {error}");
 
-                       Error::DecodingAccessTokenFailed
+                       Error::DecodingJWTFailed
                      })?;
 
     let now = Local::now().timestamp() as usize;
 
     if token_data.claims.registered.expires_at < now {
-      return Err(Error::AccessTokenExpired);
+      return Err(Error::JWTExpired);
     }
 
     Ok(token_data.claims)

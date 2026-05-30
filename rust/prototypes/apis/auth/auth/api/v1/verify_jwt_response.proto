@@ -24,6 +24,6 @@ syntax = "proto3";
 
 package auth.api.v1;
 
-message VerifyAccessTokenResponse {
+message VerifyJWTResponse {
   int64 user_id = 1;
 }

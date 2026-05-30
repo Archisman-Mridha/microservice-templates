@@ -22,10 +22,7 @@
 
 use {
   crate::domains::auth::{
-    dtos::{
-      CreateUserArgs, SigninArgs, SigninID, SigninOutput, VerifyAccessTokenArgs,
-      VerifyAccessTokenOutput
-    },
+    dtos::{CreateUserArgs, SigninArgs, SigninID, SigninOutput, VerifyJWTArgs, VerifyJWTOutput},
     error::Error,
     token::JWTService,
     user
@@ -131,25 +128,23 @@ impl AuthService {
                      Error::WrongPassword
                    })?;
 
-    // Generate access token.
-    let access_token = self.jwt_service.issue(user.id)?;
+    // Generate JWT.
+    let jwt = self.jwt_service.issue(user.id)?;
 
     Ok(SigninOutput { user_id: user.id,
-                      access_token })
+                      jwt })
   }
 
-  pub async fn verify_access_token(&self,
-                                   args: VerifyAccessTokenArgs)
-                                   -> Result<VerifyAccessTokenOutput, Error> {
+  pub async fn verify_jwt(&self, args: VerifyJWTArgs) -> Result<VerifyJWTOutput, Error> {
     // Try to retriece the user ID from the JWT.
 
-    let claims = self.jwt_service.verify(&args.access_token)?;
+    let claims = self.jwt_service.verify(&args.jwt)?;
 
     let user_id =
       claims.registered.subject.parse().map_err(|error| {
-                                          error!("Failed parsing access token subject as user ID : {error}");
+                                          error!("Failed parsing JWT subject as user ID : {error}");
 
-                                          Error::DecodingAccessTokenFailed
+                                          Error::DecodingJWTFailed
                                         })?;
 
     // Verify that the user exists.
@@ -158,6 +153,6 @@ impl AuthService {
                                      .map_err(|error| Error::Unexpected(anyhow!("{error}")))?
                                      .ok_or(Error::UserNotFound)?;
 
-    Ok(VerifyAccessTokenOutput { user_id })
+    Ok(VerifyJWTOutput { user_id })
   }
 }

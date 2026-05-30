@@ -24,6 +24,6 @@ syntax = "proto3";
 
 package auth.api.v1;
 
-message VerifyAccessTokenRequest {
-  string access_token = 1;
+message VerifyJWTRequest {
+  string jwt = 1;
 }

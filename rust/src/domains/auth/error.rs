@@ -32,8 +32,8 @@ pub enum Error {
 
   UserNotFound,
   WrongPassword,
-  DecodingAccessTokenFailed,
-  AccessTokenExpired,
+  DecodingJWTFailed,
+  JWTExpired,
 
   Unexpected(anyhow::Error)
 }
@@ -49,8 +49,8 @@ impl Into<Status> for Error {
 
       | Self::UserNotFound => Status::unauthenticated("User not found"),
       | Self::WrongPassword => Status::unauthenticated("Wrong password"),
-      | Self::DecodingAccessTokenFailed => Status::unauthenticated("Decoding access token failed"),
-      | Self::AccessTokenExpired => Status::unauthenticated("Access token expired"),
+      | Self::DecodingJWTFailed => Status::unauthenticated("Decoding JWT failed"),
+      | Self::JWTExpired => Status::unauthenticated("JWT expired"),
 
       | Self::Unexpected(error) => {
         error!("Unexpected error occurred : {error}");

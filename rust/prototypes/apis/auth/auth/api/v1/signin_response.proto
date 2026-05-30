@@ -26,5 +26,5 @@ package auth.api.v1;
 
 message SigninResponse {
   int64 user_id = 1;
-  string access_token = 2;
+  string jwt = 2;
 }

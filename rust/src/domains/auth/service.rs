@@ -131,12 +131,11 @@ impl AuthService {
                      Error::WrongPassword
                    })?;
 
-    // Generate JWT.
+    // Generate access token.
+    let access_token = self.jwt_service.issue(user.id)?;
 
-    let jwt = self.jwt_service.issue(user.id)?;
-
-    Ok(SigninOutput { user_id:      user.id,
-                      access_token: jwt })
+    Ok(SigninOutput { user_id: user.id,
+                      access_token })
   }
 
   pub async fn verify_access_token(&self,
@@ -148,13 +147,12 @@ impl AuthService {
 
     let user_id =
       claims.registered.subject.parse().map_err(|error| {
-                                          error!("Failed parsing JWT subject as user ID : {error}");
+                                          error!("Failed parsing access token subject as user ID : {error}");
 
-                                          Error::DecodingJWTFailed
+                                          Error::DecodingAccessTokenFailed
                                         })?;
 
     // Verify that the user exists.
-
     user::Entity::find_by_id(user_id).one(&*self.connection)
                                      .await
                                      .map_err(|error| Error::Unexpected(anyhow!("{error}")))?

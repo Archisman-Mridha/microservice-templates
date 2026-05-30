@@ -24,7 +24,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: auth/api/v1/verify_access_token_response.proto
+// source: auth/api/v1/verify_jwt_response.proto
 
 package generated
 
@@ -43,28 +43,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type VerifyAccessTokenResponse struct {
+type VerifyJWTResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int32                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *VerifyAccessTokenResponse) Reset() {
-	*x = VerifyAccessTokenResponse{}
-	mi := &file_auth_api_v1_verify_access_token_response_proto_msgTypes[0]
+func (x *VerifyJWTResponse) Reset() {
+	*x = VerifyJWTResponse{}
+	mi := &file_auth_api_v1_verify_jwt_response_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *VerifyAccessTokenResponse) String() string {
+func (x *VerifyJWTResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*VerifyAccessTokenResponse) ProtoMessage() {}
+func (*VerifyJWTResponse) ProtoMessage() {}
 
-func (x *VerifyAccessTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_api_v1_verify_access_token_response_proto_msgTypes[0]
+func (x *VerifyJWTResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_api_v1_verify_jwt_response_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -75,43 +75,43 @@ func (x *VerifyAccessTokenResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use VerifyAccessTokenResponse.ProtoReflect.Descriptor instead.
-func (*VerifyAccessTokenResponse) Descriptor() ([]byte, []int) {
-	return file_auth_api_v1_verify_access_token_response_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use VerifyJWTResponse.ProtoReflect.Descriptor instead.
+func (*VerifyJWTResponse) Descriptor() ([]byte, []int) {
+	return file_auth_api_v1_verify_jwt_response_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *VerifyAccessTokenResponse) GetUserId() int32 {
+func (x *VerifyJWTResponse) GetUserId() int32 {
 	if x != nil {
 		return x.UserId
 	}
 	return 0
 }
 
-var File_auth_api_v1_verify_access_token_response_proto protoreflect.FileDescriptor
+var File_auth_api_v1_verify_jwt_response_proto protoreflect.FileDescriptor
 
-const file_auth_api_v1_verify_access_token_response_proto_rawDesc = "" +
+const file_auth_api_v1_verify_jwt_response_proto_rawDesc = "" +
 	"\n" +
-	".auth/api/v1/verify_access_token_response.proto\x12\vauth.api.v1\"4\n" +
-	"\x19VerifyAccessTokenResponse\x12\x17\n" +
+	"%auth/api/v1/verify_jwt_response.proto\x12\vauth.api.v1\",\n" +
+	"\x11VerifyJWTResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x05R\x06userIdB#Z!openmedia.io/prototypes/generatedb\x06proto3"
 
 var (
-	file_auth_api_v1_verify_access_token_response_proto_rawDescOnce sync.Once
-	file_auth_api_v1_verify_access_token_response_proto_rawDescData []byte
+	file_auth_api_v1_verify_jwt_response_proto_rawDescOnce sync.Once
+	file_auth_api_v1_verify_jwt_response_proto_rawDescData []byte
 )
 
-func file_auth_api_v1_verify_access_token_response_proto_rawDescGZIP() []byte {
-	file_auth_api_v1_verify_access_token_response_proto_rawDescOnce.Do(func() {
-		file_auth_api_v1_verify_access_token_response_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_auth_api_v1_verify_access_token_response_proto_rawDesc), len(file_auth_api_v1_verify_access_token_response_proto_rawDesc)))
+func file_auth_api_v1_verify_jwt_response_proto_rawDescGZIP() []byte {
+	file_auth_api_v1_verify_jwt_response_proto_rawDescOnce.Do(func() {
+		file_auth_api_v1_verify_jwt_response_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_auth_api_v1_verify_jwt_response_proto_rawDesc), len(file_auth_api_v1_verify_jwt_response_proto_rawDesc)))
 	})
-	return file_auth_api_v1_verify_access_token_response_proto_rawDescData
+	return file_auth_api_v1_verify_jwt_response_proto_rawDescData
 }
 
-var file_auth_api_v1_verify_access_token_response_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_auth_api_v1_verify_access_token_response_proto_goTypes = []any{
-	(*VerifyAccessTokenResponse)(nil), // 0: auth.api.v1.VerifyAccessTokenResponse
+var file_auth_api_v1_verify_jwt_response_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_auth_api_v1_verify_jwt_response_proto_goTypes = []any{
+	(*VerifyJWTResponse)(nil), // 0: auth.api.v1.VerifyJWTResponse
 }
-var file_auth_api_v1_verify_access_token_response_proto_depIdxs = []int32{
+var file_auth_api_v1_verify_jwt_response_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -119,26 +119,26 @@ var file_auth_api_v1_verify_access_token_response_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_auth_api_v1_verify_access_token_response_proto_init() }
-func file_auth_api_v1_verify_access_token_response_proto_init() {
-	if File_auth_api_v1_verify_access_token_response_proto != nil {
+func init() { file_auth_api_v1_verify_jwt_response_proto_init() }
+func file_auth_api_v1_verify_jwt_response_proto_init() {
+	if File_auth_api_v1_verify_jwt_response_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_api_v1_verify_access_token_response_proto_rawDesc), len(file_auth_api_v1_verify_access_token_response_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_api_v1_verify_jwt_response_proto_rawDesc), len(file_auth_api_v1_verify_jwt_response_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_auth_api_v1_verify_access_token_response_proto_goTypes,
-		DependencyIndexes: file_auth_api_v1_verify_access_token_response_proto_depIdxs,
-		MessageInfos:      file_auth_api_v1_verify_access_token_response_proto_msgTypes,
+		GoTypes:           file_auth_api_v1_verify_jwt_response_proto_goTypes,
+		DependencyIndexes: file_auth_api_v1_verify_jwt_response_proto_depIdxs,
+		MessageInfos:      file_auth_api_v1_verify_jwt_response_proto_msgTypes,
 	}.Build()
-	File_auth_api_v1_verify_access_token_response_proto = out.File
-	file_auth_api_v1_verify_access_token_response_proto_goTypes = nil
-	file_auth_api_v1_verify_access_token_response_proto_depIdxs = nil
+	File_auth_api_v1_verify_jwt_response_proto = out.File
+	file_auth_api_v1_verify_jwt_response_proto_goTypes = nil
+	file_auth_api_v1_verify_jwt_response_proto_depIdxs = nil
 }

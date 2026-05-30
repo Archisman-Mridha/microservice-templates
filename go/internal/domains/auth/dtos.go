@@ -20,29 +20,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package repository
+package auth
 
-import (
-	"context"
+type CreateUserArgs struct {
+	Name     Name
+	Email    Email
+	Username Username
+	Password Password
+}
+
+type (
+	SigninIDKind uint
+
+	SigninArgs struct {
+		IDKind   SigninIDKind
+		Email    *Email
+		Username *Username
+
+		Password Password
+	}
+
+	SigninOutput struct {
+		UserID int32
+		JWT    string
+	}
 )
 
-type Repository interface {
-	Create(ctx context.Context, input *CreateInput) (int32, error)
+const (
+	SigninIDKindEmail SigninIDKind = iota
+	SigninIDKindUsername
+)
 
-	FindByEmail(ctx context.Context, email string) (*FindByOutput, error)
-	FindByUsername(ctx context.Context, username string) (*FindByOutput, error)
+type (
+	VerifyJWTArgs struct {
+		JWT string
+	}
 
-	Exists(ctx context.Context, id int32) (bool, error)
-}
-
-type CreateInput struct {
-	Name,
-	Email,
-	Username,
-	HashedPassword string
-}
-
-type FindByOutput struct {
-	ID             int32
-	HashedPassword string
-}
+	VerifyJWTOutput struct {
+		UserID int32
+	}
+)

@@ -105,8 +105,8 @@ func (j *JWTService) Issue(userID int32) (string, error) {
 	return jwt, nil
 }
 
-func (j *JWTService) GetUserIDFromToken(jwt string) (int32, error) {
-	parsedJWT, err := gojwt.Parse(jwt,
+func (j *JWTService) GetUserIDFrom(accessToken string) (int32, error) {
+	parsedAccessToken, err := gojwt.Parse(accessToken,
 		func(_ *gojwt.Token) (any, error) { return []byte(j.SigningKey), nil },
 		gojwt.WithExpirationRequired(),
 	)
@@ -118,7 +118,7 @@ func (j *JWTService) GetUserIDFromToken(jwt string) (int32, error) {
 		return 0, errors.ErrInvalidJWT
 	}
 
-	subject, err := parsedJWT.Claims.GetSubject()
+	subject, err := parsedAccessToken.Claims.GetSubject()
 	if err != nil {
 		return 0, errors.ErrInvalidJWT
 	}

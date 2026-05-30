@@ -30,8 +30,8 @@ import (
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/samber/oops"
-	"openmedia.io/internal/domains/users/repository"
-	"openmedia.io/internal/domains/users/repository/postgres/sqlc/generated"
+	"openmedia.io/internal/domains/auth/users/repository"
+	"openmedia.io/internal/domains/auth/users/repository/postgres/sqlc/generated"
 	apierrors "openmedia.io/internal/errors"
 )
 
@@ -45,8 +45,8 @@ func NewRepository(connection *sql.DB) repository.Repository {
 	return &Repository{queries}
 }
 
-func (r *Repository) Create(ctx context.Context, input *repository.CreateInput) (int32, error) {
-	userID, err := r.queries.CreateUser(ctx, (*generated.CreateUserParams)(input))
+func (r *Repository) Create(ctx context.Context, args *repository.CreateArgs) (int32, error) {
+	userID, err := r.queries.CreateUser(ctx, (*generated.CreateUserParams)(args))
 	if err != nil {
 		pgErr, ok := err.(*pgconn.PgError)
 		if ok && (pgErr.Code == pgerrcode.UniqueViolation) {

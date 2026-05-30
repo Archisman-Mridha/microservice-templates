@@ -30,7 +30,7 @@ const _ = grpc.SupportPackageIsVersion7
 type AuthAPIServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	Signin(ctx context.Context, in *SigninRequest, opts ...grpc.CallOption) (*SigninResponse, error)
-	VerifyAccessToken(ctx context.Context, in *VerifyAccessTokenRequest, opts ...grpc.CallOption) (*VerifyAccessTokenResponse, error)
+	VerifyJWT(ctx context.Context, in *VerifyJWTRequest, opts ...grpc.CallOption) (*VerifyJWTResponse, error)
 }
 
 type authAPIServiceClient struct {
@@ -59,9 +59,9 @@ func (c *authAPIServiceClient) Signin(ctx context.Context, in *SigninRequest, op
 	return out, nil
 }
 
-func (c *authAPIServiceClient) VerifyAccessToken(ctx context.Context, in *VerifyAccessTokenRequest, opts ...grpc.CallOption) (*VerifyAccessTokenResponse, error) {
-	out := new(VerifyAccessTokenResponse)
-	err := c.cc.Invoke(ctx, "/auth.api.v1.AuthAPIService/VerifyAccessToken", in, out, opts...)
+func (c *authAPIServiceClient) VerifyJWT(ctx context.Context, in *VerifyJWTRequest, opts ...grpc.CallOption) (*VerifyJWTResponse, error) {
+	out := new(VerifyJWTResponse)
+	err := c.cc.Invoke(ctx, "/auth.api.v1.AuthAPIService/VerifyJWT", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c *authAPIServiceClient) VerifyAccessToken(ctx context.Context, in *Verify
 type AuthAPIServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	Signin(context.Context, *SigninRequest) (*SigninResponse, error)
-	VerifyAccessToken(context.Context, *VerifyAccessTokenRequest) (*VerifyAccessTokenResponse, error)
+	VerifyJWT(context.Context, *VerifyJWTRequest) (*VerifyJWTResponse, error)
 	mustEmbedUnimplementedAuthAPIServiceServer()
 }
 
@@ -88,8 +88,8 @@ func (UnimplementedAuthAPIServiceServer) CreateUser(context.Context, *CreateUser
 func (UnimplementedAuthAPIServiceServer) Signin(context.Context, *SigninRequest) (*SigninResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Signin not implemented")
 }
-func (UnimplementedAuthAPIServiceServer) VerifyAccessToken(context.Context, *VerifyAccessTokenRequest) (*VerifyAccessTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyAccessToken not implemented")
+func (UnimplementedAuthAPIServiceServer) VerifyJWT(context.Context, *VerifyJWTRequest) (*VerifyJWTResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyJWT not implemented")
 }
 func (UnimplementedAuthAPIServiceServer) mustEmbedUnimplementedAuthAPIServiceServer() {}
 
@@ -140,20 +140,20 @@ func _AuthAPIService_Signin_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthAPIService_VerifyAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyAccessTokenRequest)
+func _AuthAPIService_VerifyJWT_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyJWTRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthAPIServiceServer).VerifyAccessToken(ctx, in)
+		return srv.(AuthAPIServiceServer).VerifyJWT(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/auth.api.v1.AuthAPIService/VerifyAccessToken",
+		FullMethod: "/auth.api.v1.AuthAPIService/VerifyJWT",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthAPIServiceServer).VerifyAccessToken(ctx, req.(*VerifyAccessTokenRequest))
+		return srv.(AuthAPIServiceServer).VerifyJWT(ctx, req.(*VerifyJWTRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -174,8 +174,8 @@ var AuthAPIService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthAPIService_Signin_Handler,
 		},
 		{
-			MethodName: "VerifyAccessToken",
-			Handler:    _AuthAPIService_VerifyAccessToken_Handler,
+			MethodName: "VerifyJWT",
+			Handler:    _AuthAPIService_VerifyJWT_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

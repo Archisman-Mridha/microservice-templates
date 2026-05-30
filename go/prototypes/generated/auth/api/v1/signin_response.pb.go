@@ -46,7 +46,7 @@ const (
 type SigninResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int32                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	AccessToken   string                 `protobuf:"bytes,2,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	Jwt           string                 `protobuf:"bytes,2,opt,name=jwt,proto3" json:"jwt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -88,9 +88,9 @@ func (x *SigninResponse) GetUserId() int32 {
 	return 0
 }
 
-func (x *SigninResponse) GetAccessToken() string {
+func (x *SigninResponse) GetJwt() string {
 	if x != nil {
-		return x.AccessToken
+		return x.Jwt
 	}
 	return ""
 }
@@ -99,10 +99,10 @@ var File_auth_api_v1_signin_response_proto protoreflect.FileDescriptor
 
 const file_auth_api_v1_signin_response_proto_rawDesc = "" +
 	"\n" +
-	"!auth/api/v1/signin_response.proto\x12\vauth.api.v1\"L\n" +
+	"!auth/api/v1/signin_response.proto\x12\vauth.api.v1\";\n" +
 	"\x0eSigninResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x05R\x06userId\x12!\n" +
-	"\faccess_token\x18\x02 \x01(\tR\vaccessTokenB#Z!openmedia.io/prototypes/generatedb\x06proto3"
+	"\auser_id\x18\x01 \x01(\x05R\x06userId\x12\x10\n" +
+	"\x03jwt\x18\x02 \x01(\tR\x03jwtB#Z!openmedia.io/prototypes/generatedb\x06proto3"
 
 var (
 	file_auth_api_v1_signin_response_proto_rawDescOnce sync.Once

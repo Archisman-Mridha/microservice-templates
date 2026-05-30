@@ -26,6 +26,6 @@ package auth.api.v1;
 
 option go_package = "openmedia.io/prototypes/generated";
 
-message VerifyAccessTokenResponse {
-  int32 user_id = 1;
+message VerifyJWTRequest {
+  string jwt = 1;
 }

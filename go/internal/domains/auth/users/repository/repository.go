@@ -20,13 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-syntax = "proto3";
+package repository
 
-package auth.api.v1;
+import (
+	"context"
+)
 
-option go_package = "openmedia.io/prototypes/generated";
+type Repository interface {
+	Create(ctx context.Context, args *CreateArgs) (int32, error)
 
-message SigninResponse {
-  int32 user_id = 1;
-  string jwt = 2;
+	FindByEmail(ctx context.Context, email string) (*FindByOutput, error)
+	FindByUsername(ctx context.Context, username string) (*FindByOutput, error)
+
+	Exists(ctx context.Context, id int32) (bool, error)
+}
+
+type CreateArgs struct {
+	Name,
+	Email,
+	Username,
+	HashedPassword string
+}
+
+type FindByOutput struct {
+	ID             int32
+	HashedPassword string
 }

@@ -38,24 +38,23 @@ When the presentation layer (in this case, gRPC server) gets :
 */
 type APIError error
 
-// Returns an APIError, constructed using the given error message.
+// ValidationErrors represents an APIError caused due to validation failures.
+type ValidationErrors APIError
+
+var (
+	ErrDuplicateEmail    = NewAPIError("email already exists")
+	ErrDuplicateUsername = NewAPIError("username already exists")
+
+	ErrUserNotFound  = NewAPIError("user not found")
+	ErrWrongPassword = NewAPIError("wrong password")
+	ErrInvalidJWT    = NewAPIError("invalid JWT")
+	ErrExpiredJWT    = NewAPIError("expired JWT")
+)
+
+var ErrInternalServer = errors.New("internal server error")
+
+// Returns an APIError, constructed from the given error message.
 func NewAPIError(message string) APIError {
 	//nolint:errcheck
 	return errors.New(message).(APIError)
 }
-
-// API errors.
-var (
-	ErrInvalidEmail    = NewAPIError("invalid email")
-	ErrInvalidUsername = NewAPIError("invalid username")
-
-	ErrDuplicateEmail    = NewAPIError("email already exists")
-	ErrDuplicateUsername = NewAPIError("username already exists")
-
-	ErrInvalidJWT = NewAPIError("invalid JWT")
-	ErrExpiredJWT = NewAPIError("expired JWT")
-
-	ErrUserNotFound = NewAPIError("user not found")
-)
-
-var ErrInternalServer = errors.New("internal server error")

@@ -46,28 +46,28 @@ var File_auth_api_v1_api_proto protoreflect.FileDescriptor
 
 const file_auth_api_v1_api_proto_rawDesc = "" +
 	"\n" +
-	"\x15auth/api/v1/api.proto\x12\vauth.api.v1\x1a%auth/api/v1/create_user_request.proto\x1a&auth/api/v1/create_user_response.proto\x1a auth/api/v1/signin_request.proto\x1a!auth/api/v1/signin_response.proto\x1a-auth/api/v1/verify_access_token_request.proto\x1a.auth/api/v1/verify_access_token_response.proto2\x86\x02\n" +
+	"\x15auth/api/v1/api.proto\x12\vauth.api.v1\x1a%auth/api/v1/create_user_request.proto\x1a&auth/api/v1/create_user_response.proto\x1a auth/api/v1/signin_request.proto\x1a!auth/api/v1/signin_response.proto\x1a$auth/api/v1/verify_jwt_request.proto\x1a%auth/api/v1/verify_jwt_response.proto2\xee\x01\n" +
 	"\x0eAuthAPIService\x12M\n" +
 	"\n" +
 	"CreateUser\x12\x1e.auth.api.v1.CreateUserRequest\x1a\x1f.auth.api.v1.CreateUserResponse\x12A\n" +
-	"\x06Signin\x12\x1a.auth.api.v1.SigninRequest\x1a\x1b.auth.api.v1.SigninResponse\x12b\n" +
-	"\x11VerifyAccessToken\x12%.auth.api.v1.VerifyAccessTokenRequest\x1a&.auth.api.v1.VerifyAccessTokenResponseB#Z!openmedia.io/prototypes/generatedb\x06proto3"
+	"\x06Signin\x12\x1a.auth.api.v1.SigninRequest\x1a\x1b.auth.api.v1.SigninResponse\x12J\n" +
+	"\tVerifyJWT\x12\x1d.auth.api.v1.VerifyJWTRequest\x1a\x1e.auth.api.v1.VerifyJWTResponseB#Z!openmedia.io/prototypes/generatedb\x06proto3"
 
 var file_auth_api_v1_api_proto_goTypes = []any{
-	(*CreateUserRequest)(nil),         // 0: auth.api.v1.CreateUserRequest
-	(*SigninRequest)(nil),             // 1: auth.api.v1.SigninRequest
-	(*VerifyAccessTokenRequest)(nil),  // 2: auth.api.v1.VerifyAccessTokenRequest
-	(*CreateUserResponse)(nil),        // 3: auth.api.v1.CreateUserResponse
-	(*SigninResponse)(nil),            // 4: auth.api.v1.SigninResponse
-	(*VerifyAccessTokenResponse)(nil), // 5: auth.api.v1.VerifyAccessTokenResponse
+	(*CreateUserRequest)(nil),  // 0: auth.api.v1.CreateUserRequest
+	(*SigninRequest)(nil),      // 1: auth.api.v1.SigninRequest
+	(*VerifyJWTRequest)(nil),   // 2: auth.api.v1.VerifyJWTRequest
+	(*CreateUserResponse)(nil), // 3: auth.api.v1.CreateUserResponse
+	(*SigninResponse)(nil),     // 4: auth.api.v1.SigninResponse
+	(*VerifyJWTResponse)(nil),  // 5: auth.api.v1.VerifyJWTResponse
 }
 var file_auth_api_v1_api_proto_depIdxs = []int32{
 	0, // 0: auth.api.v1.AuthAPIService.CreateUser:input_type -> auth.api.v1.CreateUserRequest
 	1, // 1: auth.api.v1.AuthAPIService.Signin:input_type -> auth.api.v1.SigninRequest
-	2, // 2: auth.api.v1.AuthAPIService.VerifyAccessToken:input_type -> auth.api.v1.VerifyAccessTokenRequest
+	2, // 2: auth.api.v1.AuthAPIService.VerifyJWT:input_type -> auth.api.v1.VerifyJWTRequest
 	3, // 3: auth.api.v1.AuthAPIService.CreateUser:output_type -> auth.api.v1.CreateUserResponse
 	4, // 4: auth.api.v1.AuthAPIService.Signin:output_type -> auth.api.v1.SigninResponse
-	5, // 5: auth.api.v1.AuthAPIService.VerifyAccessToken:output_type -> auth.api.v1.VerifyAccessTokenResponse
+	5, // 5: auth.api.v1.AuthAPIService.VerifyJWT:output_type -> auth.api.v1.VerifyJWTResponse
 	3, // [3:6] is the sub-list for method output_type
 	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -84,8 +84,8 @@ func file_auth_api_v1_api_proto_init() {
 	file_auth_api_v1_create_user_response_proto_init()
 	file_auth_api_v1_signin_request_proto_init()
 	file_auth_api_v1_signin_response_proto_init()
-	file_auth_api_v1_verify_access_token_request_proto_init()
-	file_auth_api_v1_verify_access_token_response_proto_init()
+	file_auth_api_v1_verify_jwt_request_proto_init()
+	file_auth_api_v1_verify_jwt_response_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -25,88 +25,108 @@ package auth
 import (
 	"context"
 
-	"openmedia.io/internal/domains/users"
+	"openmedia.io/internal/domains/auth/users/repository"
 	"openmedia.io/internal/errors"
+	"openmedia.io/internal/passwordhasher"
 	"openmedia.io/internal/token"
 )
 
-const (
-	SigninIDKindEmail SigninIDKind = iota
-	SigninIDKindUsername
-)
-
 type Service struct {
-	usersService *users.Service
-	tokenService token.TokenService
+	passwordHasher  passwordhasher.PasswordHasher
+	usersRepository repository.Repository
+	tokenService    token.TokenService
 }
 
 func NewAuthService(
-	usersService *users.Service,
+	passwordHasher passwordhasher.PasswordHasher,
+	usersRepository repository.Repository,
 	tokenService token.TokenService,
 ) *Service {
 	return &Service{
-		usersService,
+		passwordHasher,
+		usersRepository,
 		tokenService,
 	}
 }
 
-type (
-	SigninIDKind uint
-
-	SigninInput struct {
-		IDKind SigninIDKind
-		ID,
-
-		Password string
+func (s *Service) CreateUser(ctx context.Context, args *CreateUserArgs) error {
+	// Hash the password, using the Argon2ID algorithm.
+	hashedPassword, err := s.passwordHasher.Hash(string(args.Password))
+	if err != nil {
+		return err
 	}
 
-	SigninOutput struct {
-		UserID      int32
-		AccessToken string
-	}
-)
+	// Try to create the user in the database.
+	_, err = s.usersRepository.Create(ctx, &repository.CreateArgs{
+		Name:     string(args.Name),
+		Email:    string(args.Email),
+		Username: string(args.Username),
 
-func (s *Service) Signin(ctx context.Context, input *SigninInput) (*SigninOutput, error) {
+		HashedPassword: hashedPassword,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) Signin(ctx context.Context, args *SigninArgs) (*SigninOutput, error) {
+	// Try finding the user from the database.
 	var (
-		userDetails *users.FindByOutput
+		userDetails *repository.FindByOutput
 		err         error
 	)
-	switch input.IDKind {
+	switch args.IDKind {
 	case SigninIDKindEmail:
-		userDetails, err = s.usersService.FindByEmail(ctx, input.ID)
+		userDetails, err = s.usersRepository.FindByEmail(ctx, string(*args.Email))
 
 	case SigninIDKindUsername:
-		userDetails, err = s.usersService.FindByUsername(ctx, input.ID)
+		userDetails, err = s.usersRepository.FindByUsername(ctx, string(*args.Username))
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, err := s.tokenService.Issue(userDetails.ID)
+	// Verify that the provided password is correct.
+	err = s.passwordHasher.Verify(string(args.Password), userDetails.HashedPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate JWT.
+	jwt, err := s.tokenService.Issue(userDetails.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	output := &SigninOutput{
-		UserID:      userDetails.ID,
-		AccessToken: accessToken,
+		UserID: userDetails.ID,
+		JWT:    jwt,
 	}
 	return output, nil
 }
 
-func (s *Service) VerifyAccessToken(ctx context.Context, accessToken string) (int32, error) {
-	userID, err := s.tokenService.GetUserIDFromToken(accessToken)
+func (s *Service) VerifyJWT(ctx context.Context,
+	args *VerifyJWTArgs,
+) (*VerifyJWTOutput, error) {
+	// Try to retriece the user ID from the JWT.
+	userID, err := s.tokenService.GetUserIDFrom(args.JWT)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	userExists, err := s.usersService.Exists(ctx, userID)
+	// Verify that the user exists.
+	userExists, err := s.usersRepository.Exists(ctx, userID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	if !userExists {
-		return 0, errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound
 	}
 
-	return userID, nil
+	output := &VerifyJWTOutput{
+		UserID: userID,
+	}
+	return output, nil
 }

@@ -35,19 +35,17 @@ import (
 	"openmedia.io/internal/connectors"
 	"openmedia.io/internal/constants"
 	"openmedia.io/internal/domains/auth"
-	"openmedia.io/internal/domains/users"
-	usersrepositorypostgres "openmedia.io/internal/domains/users/repository/postgres"
-	"openmedia.io/internal/errors"
+	usersrepositorypostgres "openmedia.io/internal/domains/auth/users/repository/postgres"
 	"openmedia.io/internal/grpc"
 	"openmedia.io/internal/healthcheck"
 	"openmedia.io/internal/logger"
+	"openmedia.io/internal/passwordhasher"
 	"openmedia.io/internal/token"
 	"openmedia.io/internal/utils"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc/codes"
 )
 
 var configFilePath string
@@ -110,12 +108,13 @@ func run(ctx context.Context, config *config.Config, validator *validator.Valida
 
 	// Construct services.
 
+	passwordHasher := passwordhasher.NewArgon2PasswordHasher()
+
 	usersRepository := usersrepositorypostgres.NewRepository(postgresConnector.GetConnection())
-	usersService := users.NewService(usersRepository)
 
 	tokenService := token.NewJWTService(config.JWT)
 
-	authService := auth.NewAuthService(usersService, tokenService)
+	authService := auth.NewAuthService(passwordHasher, usersRepository, tokenService)
 
 	// Construct and run the gRPC server.
 
@@ -125,8 +124,6 @@ func run(ctx context.Context, config *config.Config, validator *validator.Valida
 		Healthcheckables: []healthcheck.Healthcheckable{
 			postgresConnector,
 		},
-
-		ToGRPCErrorStatusCodeFn: getGRPCErrorStatusCode,
 	})
 
 	auth.RegisterAuthAPI(gRPCServer.Server, authService)
@@ -150,29 +147,4 @@ func run(ctx context.Context, config *config.Config, validator *validator.Valida
 	gRPCServer.GracefulShutdown()
 
 	return waitGroup.Wait()
-}
-
-// Returns suitable gRPC error status code, based on the given error.
-func getGRPCErrorStatusCode(err error) codes.Code {
-	apiErr, ok := err.(errors.APIError)
-	if !ok {
-		return codes.Internal
-	}
-
-	switch apiErr {
-	case errors.ErrInvalidEmail, errors.ErrInvalidUsername:
-		return codes.InvalidArgument
-
-	case errors.ErrDuplicateEmail, errors.ErrDuplicateUsername:
-		return codes.AlreadyExists
-
-	case errors.ErrInvalidJWT, errors.ErrExpiredJWT:
-		return codes.Unauthenticated
-
-	case errors.ErrUserNotFound:
-		return codes.NotFound
-
-	default:
-		return codes.Unknown
-	}
 }

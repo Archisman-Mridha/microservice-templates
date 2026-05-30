@@ -28,8 +28,8 @@ import "auth/api/v1/create_user_request.proto";
 import "auth/api/v1/create_user_response.proto";
 import "auth/api/v1/signin_request.proto";
 import "auth/api/v1/signin_response.proto";
-import "auth/api/v1/verify_access_token_request.proto";
-import "auth/api/v1/verify_access_token_response.proto";
+import "auth/api/v1/verify_jwt_request.proto";
+import "auth/api/v1/verify_jwt_response.proto";
 
 option go_package = "openmedia.io/prototypes/generated";
 
@@ -38,5 +38,5 @@ service AuthAPIService {
 
   rpc Signin(SigninRequest) returns (SigninResponse);
 
-  rpc VerifyAccessToken(VerifyAccessTokenRequest) returns (VerifyAccessTokenResponse);
+  rpc VerifyJWT(VerifyJWTRequest) returns (VerifyJWTResponse);
 }

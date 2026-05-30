@@ -20,13 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-syntax = "proto3";
+package errors
 
-package auth.api.v1;
+import "google.golang.org/grpc/codes"
 
-option go_package = "openmedia.io/prototypes/generated";
+// Returns suitable gRPC error status code, based on the given error.
+func GetGRPCErrorStatusCode(err error) codes.Code {
+	apiErr, ok := err.(APIError)
+	if !ok {
+		return codes.Internal
+	}
 
-message SigninResponse {
-  int32 user_id = 1;
-  string jwt = 2;
+	if _, ok = apiErr.(ValidationErrors); ok {
+		return codes.InvalidArgument
+	}
+
+	switch apiErr {
+	case ErrDuplicateEmail, ErrDuplicateUsername:
+		return codes.AlreadyExists
+
+	case ErrWrongPassword, ErrInvalidJWT, ErrExpiredJWT:
+		return codes.Unauthenticated
+
+	case ErrUserNotFound:
+		return codes.NotFound
+
+	default:
+		return codes.Unknown
+	}
 }

@@ -44,45 +44,99 @@ func RegisterAuthAPI(server *grpc.Server, authService *Service) {
 	generated.RegisterAuthAPIServiceServer(server, authAPI)
 }
 
+func (a *AuthAPI) CreateUser(ctx context.Context,
+	request *generated.CreateUserRequest,
+) (*generated.CreateUserResponse, error) {
+	name, err := NewName(request.GetName())
+	if err != nil {
+		return nil, err
+	}
+
+	email, err := NewEmail(request.GetEmail())
+	if err != nil {
+		return nil, err
+	}
+
+	username, err := NewUsername(request.GetUsername())
+	if err != nil {
+		return nil, err
+	}
+
+	password, err := NewPassword(request.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	err = a.authService.CreateUser(ctx, &CreateUserArgs{
+		Name:     name,
+		Email:    email,
+		Username: username,
+		Password: password,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	response := &generated.CreateUserResponse{}
+	return response, nil
+}
+
 func (a *AuthAPI) Signin(ctx context.Context,
 	request *generated.SigninRequest,
 ) (*generated.SigninResponse, error) {
+	password, err := NewPassword(request.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
 	//nolint:exhaustruct
-	input := &SigninInput{
-		Password: request.GetPassword(),
+	args := &SigninArgs{
+		Password: password,
 	}
 	switch request.GetId().(type) {
 	case *generated.SigninRequest_Email:
-		input.IDKind = SigninIDKindEmail
-		input.ID = request.GetEmail()
+		args.IDKind = SigninIDKindEmail
+
+		email, err := NewEmail(request.GetEmail())
+		if err != nil {
+			return nil, err
+		}
+		args.Email = &email
 
 	case *generated.SigninRequest_Username:
-		input.IDKind = SigninIDKindUsername
-		input.ID = request.GetUsername()
+		args.IDKind = SigninIDKindUsername
+
+		username, err := NewUsername(request.GetUsername())
+		if err != nil {
+			return nil, err
+		}
+		args.Username = &username
 	}
 
-	output, err := a.authService.Signin(ctx, input)
+	output, err := a.authService.Signin(ctx, args)
 	if err != nil {
 		return nil, err
 	}
 
 	response := &generated.SigninResponse{
-		AccessToken: output.AccessToken,
-		UserId:      output.UserID,
+		Jwt:    output.JWT,
+		UserId: output.UserID,
 	}
 	return response, nil
 }
 
-func (a *AuthAPI) ValidateJWT(ctx context.Context,
-	request *generated.VerifyAccessTokenRequest,
-) (*generated.VerifyAccessTokenResponse, error) {
-	userID, err := a.authService.VerifyAccessToken(ctx, request.GetAccessToken())
+func (a *AuthAPI) VerifyJWT(ctx context.Context,
+	request *generated.VerifyJWTRequest,
+) (*generated.VerifyJWTResponse, error) {
+	output, err := a.authService.VerifyJWT(ctx, &VerifyJWTArgs{
+		JWT: request.GetJwt(),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	response := &generated.VerifyAccessTokenResponse{
-		UserId: userID,
+	response := &generated.VerifyJWTResponse{
+		UserId: output.UserID,
 	}
 	return response, nil
 }

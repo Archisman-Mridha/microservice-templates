@@ -20,12 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-syntax = "proto3";
+package passwordhasher
 
-package auth.api.v1;
-
-option go_package = "openmedia.io/prototypes/generated";
-
-message VerifyAccessTokenRequest {
-  string access_token = 1;
+type PasswordHasher interface {
+	Hash(password string) (string, error)
+	Verify(providedPassword, storedHashedPassword string) error
 }

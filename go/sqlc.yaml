@@ -3,11 +3,11 @@ version: "2"
 sql:
   - engine: postgresql
     schema: ./migrations/
-    queries: ./internal/domains/users/repository/postgres/sqlc/queries.sql
+    queries: ./internal/domains/auth/repository/postgres/sqlc/queries.sql
     gen:
       go:
         package: postgres
-        out: ./internal/domains/users/repository/postgres/sqlc/generated
+        out: ./internal/domains/auth/repository/postgres/sqlc/generated
         emit_interface: true
         emit_params_struct_pointers: true
         emit_result_struct_pointers: true

@@ -29,6 +29,7 @@ import (
 	"net"
 
 	"openmedia.io/internal/assert"
+	"openmedia.io/internal/errors"
 	"openmedia.io/internal/healthcheck"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
@@ -75,8 +76,6 @@ type (
 		DevModeEnabled bool
 
 		Healthcheckables []healthcheck.Healthcheckable
-
-		ToGRPCErrorStatusCodeFn ToGRPCErrorStatusCodeFn
 	}
 
 	ToGRPCErrorStatusCodeFn = func(error) codes.Code
@@ -96,12 +95,12 @@ func NewGRPCServer(ctx context.Context, args NewGRPCServerArgs) *GRPCServer {
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(requestLogger),
 
-			errorHandlerUnaryServerInterceptor(args.ToGRPCErrorStatusCodeFn),
+			errorHandlerUnaryServerInterceptor(errors.GetGRPCErrorStatusCode),
 		),
 		grpc.ChainStreamInterceptor(
 			logging.StreamServerInterceptor(requestLogger),
 
-			errorHandlerStreamServerInterceptor(args.ToGRPCErrorStatusCodeFn),
+			errorHandlerStreamServerInterceptor(errors.GetGRPCErrorStatusCode),
 		),
 	)
 

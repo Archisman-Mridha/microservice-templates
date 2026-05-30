@@ -46,6 +46,10 @@ impl TryFrom<String> for Name {
       validation_errors.push(String::from("Name must contain only alphabetic characters"));
     }
 
+    if !validation_errors.is_empty() {
+      return Err(Error::ValidationFailed(validation_errors));
+    }
+
     Ok(Self(value))
   }
 }
@@ -79,6 +83,8 @@ impl TryFrom<String> for Username {
         validation_errors.push(String::from(
           "Username must contain only alphanumeric, underscore and dot characters"
         ));
+
+        break;
       }
 
       if character.is_alphabetic() {
@@ -91,7 +97,7 @@ impl TryFrom<String> for Username {
         .push(String::from("Username must contain atleast one alphabetic character"));
     }
 
-    if validation_errors.len() > 0 {
+    if !validation_errors.is_empty() {
       return Err(Error::ValidationFailed(validation_errors));
     }
 

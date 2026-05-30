@@ -26,7 +26,7 @@ func (m *SigninResponse) CloneVT() *SigninResponse {
 	}
 	r := new(SigninResponse)
 	r.UserId = m.UserId
-	r.AccessToken = m.AccessToken
+	r.Jwt = m.Jwt
 	if len(m.unknownFields) > 0 {
 		r.unknownFields = make([]byte, len(m.unknownFields))
 		copy(r.unknownFields, m.unknownFields)
@@ -47,7 +47,7 @@ func (this *SigninResponse) EqualVT(that *SigninResponse) bool {
 	if this.UserId != that.UserId {
 		return false
 	}
-	if this.AccessToken != that.AccessToken {
+	if this.Jwt != that.Jwt {
 		return false
 	}
 	return string(this.unknownFields) == string(that.unknownFields)
@@ -90,10 +90,10 @@ func (m *SigninResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.AccessToken) > 0 {
-		i -= len(m.AccessToken)
-		copy(dAtA[i:], m.AccessToken)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.AccessToken)))
+	if len(m.Jwt) > 0 {
+		i -= len(m.Jwt)
+		copy(dAtA[i:], m.Jwt)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Jwt)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -135,10 +135,10 @@ func (m *SigninResponse) MarshalToSizedBufferVTStrict(dAtA []byte) (int, error) 
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.AccessToken) > 0 {
-		i -= len(m.AccessToken)
-		copy(dAtA[i:], m.AccessToken)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.AccessToken)))
+	if len(m.Jwt) > 0 {
+		i -= len(m.Jwt)
+		copy(dAtA[i:], m.Jwt)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Jwt)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -159,7 +159,7 @@ func (m *SigninResponse) SizeVT() (n int) {
 	if m.UserId != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.UserId))
 	}
-	l = len(m.AccessToken)
+	l = len(m.Jwt)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -217,7 +217,7 @@ func (m *SigninResponse) UnmarshalVT(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AccessToken", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Jwt", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -245,7 +245,7 @@ func (m *SigninResponse) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.AccessToken = string(dAtA[iNdEx:postIndex])
+			m.Jwt = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -319,7 +319,7 @@ func (m *SigninResponse) UnmarshalVTUnsafe(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AccessToken", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Jwt", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -351,7 +351,7 @@ func (m *SigninResponse) UnmarshalVTUnsafe(dAtA []byte) error {
 			if intStringLen > 0 {
 				stringValue = unsafe.String(&dAtA[iNdEx], intStringLen)
 			}
-			m.AccessToken = stringValue
+			m.Jwt = stringValue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
